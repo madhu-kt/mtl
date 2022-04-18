@@ -27,28 +27,6 @@ log.addHandler(logging.StreamHandler())
 load_dotenv('../../envs/local.env')
 
 
-def run_grad_norm(simulation_type: str, mode: str, model_save_dir="./model_outputs", initial_learning_rate=0.005,
-                  num_epochs=10,
-                  result_save_dir="./results", is_transform=True):
-    # train on the GPU or on the CPU, if a GPU is not available
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-
-    dataset_train = TurbofanDataset(simulation_type=simulation_type, unit_numbers=[1, 2], train=True)
-    dataset_val = TurbofanDataset(simulation_type=simulation_type, unit_numbers=[3, 4], train=False)
-
-    data_loader_train = DataLoader(dataset_train, batch_size=2, shuffle=True, num_workers=2)
-    data_loader_val = torch.utils.data.DataLoader(dataset_val, batch_size=2, shuffle=True, num_workers=2)
-
-    feature_size = len(dataset_train.feature_cols)
-    shared_layer_size = 64
-    tower_h1 = 32
-    tower_h2 = 16
-    n_faults = 1
-
-    agent_cluster = GradNorm(feature_size, shared_layer_size, tower_h1, tower_h2, n_faults)
-    describe_model(agent_cluster.net, "GradNorm_model", feature_size, 2, device)
-
-
 def run_shared_mtl(simulation_type: str,
                    engine_ids: List[int],
                    mode: str,
